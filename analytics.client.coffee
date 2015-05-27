@@ -1,3 +1,6 @@
+# analytics.client.coffee
+# Google Analytics Measurement Protocol for Happening.im
+
 Dom = require 'dom'
 Obs = require 'obs'
 Plugin = require 'plugin'
@@ -16,16 +19,15 @@ exports.init = (tid, an) ->
 	gaq = Obs.create {}
 
 	Dom.div !->
-		Dom.prop 'id', 'analytics-queue'
 		Dom.style {display: 'none'}
 
 		gaq.iterate (item) !->
-			Dom.img ->
-				Dom.prop 'src', base + item.get('url')
+			Dom.img !->
+				Dom.prop 'src', base + item.peek('url')
 				Dom.prop 'alt', ''
 
 	ga.cid = cid = Plugin.groupCode() + '-' + Plugin.userId()
-	
+
 	ga.track = (t, props) !->
 		props.t = t      # Hit type
 		props.v = 1      # Protocol Version
@@ -39,8 +41,8 @@ exports.init = (tid, an) ->
 			props.cd = an
 
 		gal.modify (v) -> v + 1
-		gaq.set gal.get(), {url: serialize(props), props: props}
-	
+		gaq.set gal.peek(), {url: serialize(props), props: props}
+
 	ga.pageview    = (props) -> ga.track('pageview', props)
 	ga.screenview  = (props) -> ga.track('screenview', props)
 	ga.event       = (props) -> ga.track('event', props)
@@ -49,5 +51,5 @@ exports.init = (tid, an) ->
 	ga.social      = (props) -> ga.track('social', props)
 	ga.exception   = (props) -> ga.track('exception', props)
 	ga.timing      = (props) -> ga.track('timing', props)
-	
+
 	return ga
